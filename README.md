@@ -1,36 +1,29 @@
-# 📊 Live API Data Ingestion Pipeline
+# Automated Data Ingestion & Transformation Pipeline
 
-A production-grade Python-based Data Engineering ingestion pipeline designed to dynamically fetch live JSON data from REST APIs, clean/normalize nested payloads, and safely persist structured outputs into CSV format.
+A production-grade Python data pipeline that securely extracts data from a REST API, performs automated cleaning and transformation using Pandas, and logs execution metrics for monitoring.
 
----
+## 🚀 Key Features
 
-## 🏗 Architecture & Workflow
+- **Defensive API Extraction:** Safe HTTP requests with timeout and error handling.
+- **Environment Security:** API endpoints managed securely via `.env` environment variables.
+- **Automated Data Cleaning:** Pandas-driven duplicate removal, missing value imputation, and string normalization.
+- **Structured Logging:** Simultaneous console and file-based execution logging (`pipeline.log`).
+- **Modular Architecture:** Clean functional design with standard `if __name__ == "__main__":` entry point.
 
-[ External REST API ] ──(HTTP GET / Defensive Requests)──> [ Python Ingestion Script ] ──(Data Cleaning & Normalization)──> [ Local CSV Storage ]
+## 🛠️ Tech Stack
 
+- **Language:** Python 3.x
+- **Libraries:** `pandas`, `requests`, `python-dotenv`
+- **Tooling:** Git, GitHub, VS Code
 
----
+## 📁 Project Structure
 
-## ✨ Key Features
-
-- **🛡 Defensive HTTP Requests:** Integrated robust exception handling using `requests` (`HTTPError`, `ConnectionError`, `Timeout`) to ensure resilient execution.
-- **🔐 Secret & Environment Security:** Managed dynamic configuration endpoints via `.env` files and `python-dotenv` to eliminate hardcoded credentials.
-- **🧹 Payload Normalization:** Parsed complex API JSON structures into clean tabular rows ready for downstream analytics.
-- **📁 Safe Storage:** Structured automated exporting to CSV using Python's built-in `csv` library.
-
----
-
-## 🛠 Tech Stack
-
-- **Language:** Python 3.11+
-- **Libraries:** `requests`, `python-dotenv`
-- **Version Control:** Git & GitHub
-
----
-
-## 🚀 How to Run Locally
-
-### 1. Clone the Repository
-```bash
-git clone [https://github.com/alipersonal458-oss/python-data-ingestion-pipeline.git](https://github.com/alipersonal458-oss/python-data-ingestion-pipeline.git)
-cd python-data-ingestion-pipeline
+PROJECT/
+│
+├── Data_Ingestion_Pipeline_Project.py  # Main pipeline logic
+├── .env                                # Environment variables (Git-ignored)
+├── .env.example                        # Template for environment configuration
+├── pipeline.log                        # Execution logs
+├── fetch_data.csv                      # Processed dataset output
+├── .gitignore                          # Excluded files
+└── README.md                           # Project documentation

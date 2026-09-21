@@ -1,51 +1,75 @@
 import os
-from dotenv import load_dotenv
+import logging
 import requests
+import pandas as pd
+from dotenv import load_dotenv
+
+# 1. Logging Setup (File + Terminal Output)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler("pipeline.log"),  # pipeline.log file mein save hoga
+        logging.StreamHandler()               # Terminal screen par show hoga
+    ]
+)
+
+# 2. Environment Variables Load Karein
 load_dotenv()
-api_url=os.getenv('BASE_API_URL')
-env_mode=os.getenv('ENV_MODE')
-cleaned_data=[]
-print(f"Running pipeline in [{env_mode}] mode...")
-try:
-    response=requests.get(api_url,timeout=5)
-    response.raise_for_status() 
-    data=response.json()
-    for post in data:
-        cleaned_data.append({
-            'Id':post['id'],
-            'Title':post['title'],
-            'Body':post['body'][:50],
-            'User_Id':post['userId']
-        })
-except requests.exceptions.Timeout:
-    print("The request timed out. Retrying in 5 seconds...")
-except requests.exceptions.HTTPError as err:
-    status_code = err.response.status_code
-    if status_code == 401:
-        print("Invalid API Key or token expired.")
-    elif status_code == 429:
-        print("Rate limit exceeded. Backing off...")
-    else:
-        print(f"HTTP error occurred: {err}")
-except requests.exceptions.ConnectionError:
-    print("Network down. Check your internet connection.")
-except ValueError:
-    print("Server sent back invalid data format.")
-except requests.exceptions.RequestException as e:
-    print(f"An unexpected API error occurred: {e}")
-except Exception as e:
-    print(f"Data Processing Error (The API worked, but your code broke!): {e}")
-import csv
-if cleaned_data:
+API_URL = os.getenv("BASE_API_URL", "https://jsonplaceholder.typicode.com/posts")
+
+def fetch_data():
+    """Defensive API Data Extraction"""
+    logging.info("Starting API data extraction...")
     try:
-        # FIX 2: Added mode='w' and newline=''
-        with open('PROJECT/fetch_data.csv', mode='w', newline='', encoding='utf-8') as f:
-            # FIX 3: Capitalized DictWriter
-            writer = csv.DictWriter(f, fieldnames=["Id", "Title", "Body", "User_Id"])
-            writer.writeheader()
-            writer.writerows(cleaned_data)
-            print("Data successfully saved to PROJECT/fetch_data.csv!")
-    except FileNotFoundError:
-        print("Error: The 'PROJECT' folder does not exist. Please create the folder first.")
-    except Exception as e:
-        print(f"Failed to save CSV file: {e}")
+        response = requests.get(API_URL, timeout=10)
+        response.raise_for_status()
+        logging.info("Data successfully fetched from API!")
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        logging.error(f"API Request Failed: {e}")
+        return None
+
+def clean_and_transform_data(raw_data):
+    """Pandas Automated Data Cleaning & Normalization"""
+    if not raw_data:
+        logging.warning("No data received for transformation.")
+        return None
+
+    logging.info("Cleaning and transforming data with Pandas...")
+    
+    # Raw JSON ko Pandas DataFrame (Table) mein convert karein
+    df = pd.DataFrame(raw_data)
+
+    # Clean 1: Duplicates Remove Karein
+    initial_count = len(df)
+    df.drop_duplicates(inplace=True)
+    logging.info(f"Removed duplicates: {initial_count - len(df)} rows dropped.")
+
+    # Clean 2: Missing/Null Values Fill Karein
+    df.fillna({"title": "Unknown Title", "body": "No Content"}, inplace=True)
+
+    # Clean 3: Text Formatting (Extra spaces hatana)
+    if "title" in df.columns:
+        df["title"] = df["title"].str.strip()
+    if "body" in df.columns:
+            df["body"] = df["body"].str.strip()
+    
+
+    logging.info("Data transformation completed successfully.")
+    return df
+
+def save_to_csv(df, filename="fetch_data.csv"):
+    """Persist Cleaned Data to CSV"""
+    if df is not None:
+        df.to_csv(filename, index=False)
+        logging.info(f"Cleaned dataset saved to {filename}")
+    else:
+        logging.error("Failed to save: DataFrame is empty.")
+
+if __name__ == "__main__":
+    logging.info("=== Starting Pipeline Execution ===")
+    data = fetch_data()
+    cleaned_df = clean_and_transform_data(data)
+    save_to_csv(cleaned_df)
+    logging.info("=== Pipeline Execution Finished ===")
