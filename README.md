@@ -18,8 +18,8 @@ A production-grade Python data pipeline that securely extracts data from a REST 
 
 ## 📁 Project Structure
 
+```text
 PROJECT/
-│
 ├── Data_Ingestion_Pipeline_Project.py  # Main pipeline logic
 ├── .env                                # Environment variables (Git-ignored)
 ├── .env.example                        # Template for environment configuration
@@ -27,3 +27,4 @@ PROJECT/
 ├── fetch_data.csv                      # Processed dataset output
 ├── .gitignore                          # Excluded files
 └── README.md                           # Project documentation
+```

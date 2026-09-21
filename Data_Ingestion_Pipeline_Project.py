@@ -4,22 +4,22 @@ import requests
 import pandas as pd
 from dotenv import load_dotenv
 
-# 1. Logging Setup (File + Terminal Output)
+# Configure logging to output both to a log file and the terminal
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler("pipeline.log"),  # pipeline.log file mein save hoga
-        logging.StreamHandler()               # Terminal screen par show hoga
+        logging.FileHandler("pipeline.log"),  # Saves logs locally
+        logging.StreamHandler()               # Prints logs directly to console
     ]
 )
 
-# 2. Environment Variables Load Karein
+# Load environment configuration
 load_dotenv()
-API_URL = os.getenv("BASE_API_URL", "https://jsonplaceholder.typicode.com/posts")
+API_URL = os.getenv("BASE_API_URL", "[https://jsonplaceholder.typicode.com/posts](https://jsonplaceholder.typicode.com/posts)")
 
 def fetch_data():
-    """Defensive API Data Extraction"""
+    """Fetch raw JSON payload from the API with basic error handling."""
     logging.info("Starting API data extraction...")
     try:
         response = requests.get(API_URL, timeout=10)
@@ -31,36 +31,35 @@ def fetch_data():
         return None
 
 def clean_and_transform_data(raw_data):
-    """Pandas Automated Data Cleaning & Normalization"""
+    """Clean missing values, drop duplicates, and format string fields."""
     if not raw_data:
         logging.warning("No data received for transformation.")
         return None
 
     logging.info("Cleaning and transforming data with Pandas...")
     
-    # Raw JSON ko Pandas DataFrame (Table) mein convert karein
+    # Convert incoming JSON list into a Pandas DataFrame
     df = pd.DataFrame(raw_data)
 
-    # Clean 1: Duplicates Remove Karein
+    # Remove identical records
     initial_count = len(df)
     df.drop_duplicates(inplace=True)
     logging.info(f"Removed duplicates: {initial_count - len(df)} rows dropped.")
 
-    # Clean 2: Missing/Null Values Fill Karein
+    # Fill blank text fields with sensible defaults
     df.fillna({"title": "Unknown Title", "body": "No Content"}, inplace=True)
 
-    # Clean 3: Text Formatting (Extra spaces hatana)
+    # Strip unwanted whitespace from string columns
     if "title" in df.columns:
         df["title"] = df["title"].str.strip()
     if "body" in df.columns:
-            df["body"] = df["body"].str.strip()
-    
+        df["body"] = df["body"].str.strip()
 
     logging.info("Data transformation completed successfully.")
     return df
 
 def save_to_csv(df, filename="fetch_data.csv"):
-    """Persist Cleaned Data to CSV"""
+    """Save the cleaned DataFrame to a CSV file."""
     if df is not None:
         df.to_csv(filename, index=False)
         logging.info(f"Cleaned dataset saved to {filename}")
