@@ -1,30 +1,32 @@
-# Automated Data Ingestion & Transformation Pipeline
+# Modular Automated Data Ingestion & ETL Pipeline
 
-A production-grade Python data pipeline that securely extracts data from a REST API, performs automated cleaning and transformation using Pandas, and logs execution metrics for monitoring.
+A production-grade, modular Python ETL pipeline that securely extracts data from a REST API, performs automated cleaning and transformation using Pandas, and idempotently loads data into an SQLite relational database.
 
 ## 🚀 Key Features
 
-- **Defensive API Extraction:** Safe HTTP requests with timeout and error handling.
-- **Environment Security:** API endpoints managed securely via `.env` environment variables.
-- **Automated Data Cleaning:** Pandas-driven duplicate removal, missing value imputation, and string normalization.
-- **Structured Logging:** Simultaneous console and file-based execution logging (`pipeline.log`).
-- **Modular Architecture:** Clean functional design with standard `if __name__ == "__main__":` entry point.
+- **Defensive API Extraction:** Safe HTTP requests with error handling (`src/extract.py`).
+- **Data Transformation:** Pandas-driven duplicate removal, missing value imputation, and type normalization (`src/transform.py`).
+- **Idempotent Relational Storage:** SQLite integration with foreign keys enabled and `INSERT OR IGNORE` batch loading using named parameters (`src/load.py`).
+- **Modular Architecture:** Professional `src/` modularization orchestrated centrally via `main.py`.
+- **Structured Logging:** Dual-handler logging outputs pipeline execution status to both console and `pipeline.log`.
 
 ## 🛠️ Tech Stack
 
 - **Language:** Python 3.x
-- **Libraries:** `pandas`, `requests`, `python-dotenv`
-- **Tooling:** Git, GitHub, VS Code
+- **Data Processing:** `pandas`
+- **Database:** SQLite3
+- **Tooling & API:** `requests`, `python-dotenv`, Git, GitHub
 
 ## 📁 Project Structure
 
 ```text
 PROJECT/
-├── Data_Ingestion_Pipeline_Project.py  # Main pipeline logic
-├── .env                                # Environment variables (Git-ignored)
-├── .env.example                        # Template for environment configuration
-├── pipeline.log                        # Execution logs
-├── fetch_data.csv                      # Processed dataset output
-├── .gitignore                          # Excluded files
-└── README.md                           # Project documentation
-```
+├── src/
+│   ├── extract.py         # REST API data extraction module
+│   ├── transform.py       # Pandas data cleaning & transformation logic
+│   └── load.py            # SQLite relational database loading module
+├── main.py                # Pipeline execution orchestrator
+├── .env                   # Environment variables (Git-ignored)
+├── .env.example           # Shared environment template
+├── .gitignore             # Git exclusions
+└── README.md              # Project documentation

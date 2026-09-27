@@ -8,7 +8,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler("PROJECT/pipeline.log"),  # Saves logs locally
+        logging.FileHandler("pipeline.log"),  # Saves logs locally
         logging.StreamHandler()               # Prints logs directly to console
     ]
 )

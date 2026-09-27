@@ -1,7 +1,7 @@
 import sqlite3
 import logging
 
-DB_NAME = "PROJECT/pipeline_data.db"
+DB_NAME = "pipeline_data.db"
 
 def load_data_to_sqlite(df):
     """Load cleaned DataFrame into SQLite relational database with proper schema."""
